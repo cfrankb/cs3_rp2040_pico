@@ -1,0 +1,12 @@
+minicom -b 115200 -o -D /dev/ttyACM0
+
+https://www.hackster.io/news/driving-an-ili9341-display-with-a-raspberry-pi-pico-8dd4ded042e1
+
+ili9341 example
+https://github.com/shawnhyam/pico
+https://github.com/imsamrth/pico_hmi
+
+https://www.youtube.com/watch?v=RtQqXMeYpqI
+https://educ8s.tv/raspberry-pi-pico-ili9341/
+
+https://forum.micropython.org/viewtopic.php?t=9891
