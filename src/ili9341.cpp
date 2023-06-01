@@ -39,28 +39,8 @@ ili9341_config_t ili9341_config = {
 	.pin_dc = 9         //spi1 csn
 };
 
-static const uint LED_PIN = 1;
 
-
- ili9341_config_t ili9341_config2 = {
-	.port = spi0,
-	.pin_miso = 0,//4,
-	.pin_cs = 4,//5,        //spi0 csn
-	.pin_sck = 2,//6,       //spi0 sck
-	.pin_mosi = 3, //7,      //spi0 tx
-	.pin_reset = 6,//8,     //spi1 rx
-	.pin_dc = 5.//9         //spi1 csn
-};
-
-ili9341_config_t ili9341_config1 = {
-	.port = spi0,
-	.pin_miso = 16,
-	.pin_cs = 17,
-	.pin_sck = 18,
-	.pin_mosi = 19,
-	.pin_reset = 8,
-	.pin_dc = 9
-};
+const uint LED_PIN = 1;
 
 static inline void cs_select() {
     asm volatile("nop \n nop \n nop");
@@ -92,13 +72,13 @@ inline void ili9341_start_writing() {
     cs_select();
 }
 
-void ili9341_write_data(void *buffer, int bytes) {
+void ili9341_write_data(const uint8_t *buffer, size_t bytes) {
     cs_select();
     spi_write_blocking(ili9341_config.port, buffer, bytes);
     cs_deselect();
 }
 
-void ili9341_write_data_continuous(void *buffer, int bytes) {
+void ili9341_write_data_continuous(const uint8_t *buffer, int bytes) {
     spi_write_blocking(ili9341_config.port, buffer, bytes);
 }
 
@@ -118,7 +98,7 @@ static bool spi_master_write_comm_byte(uint8_t cmd)
     if (s != 1) {
         printf("spi_master_write_comm_byte return %d. expecting: 1", s);
     }
-    return s;
+    return s == 1;
     //return spi_master_write_byte(dev->_SPIHandle, &Byte, 1);
 }
 
@@ -134,7 +114,7 @@ static bool spi_master_write_data_byte(uint8_t data)
     if (s != 1) {
         printf("spi_master_write_data_byte return %d. expecting: 1", s);
     }
-    return s;
+    return s == 1;
 
     //return spi_master_write_byte(dev->_SPIHandle, &Byte, 1);
 }
@@ -291,11 +271,13 @@ void ili9341_lcdInit0() {
 
     // positive gamma correction
     ili9341_set_command(ILI9341_GMCTRP1);
-    ili9341_write_data((uint8_t[15]){ 0x0f, 0x31, 0x2b, 0x0c, 0x0e, 0x08, 0x4e, 0xf1, 0x37, 0x07, 0x10, 0x03, 0x0e, 0x09, 0x00 }, 15);
+    const uint8_t data0[15] = { 0x0f, 0x31, 0x2b, 0x0c, 0x0e, 0x08, 0x4e, 0xf1, 0x37, 0x07, 0x10, 0x03, 0x0e, 0x09, 0x00 };
+    ili9341_write_data(data0, sizeof(data0));
 
     // negative gamma correction
     ili9341_set_command(ILI9341_GMCTRN1);
-    ili9341_write_data((uint8_t[15]){ 0x00, 0x0e, 0x14, 0x03, 0x11, 0x07, 0x31, 0xc1, 0x48, 0x08, 0x0f, 0x0c, 0x31, 0x36, 0x0f }, 15);
+    const uint8_t data1[15] ={ 0x00, 0x0e, 0x14, 0x03, 0x11, 0x07, 0x31, 0xc1, 0x48, 0x08, 0x0f, 0x0c, 0x31, 0x36, 0x0f };
+    ili9341_write_data(data1, 15);
 
     // memory access control
     ili9341_set_command(ILI9341_MADCTL);
@@ -363,7 +345,6 @@ void ili9341_init() {
     gpio_set_dir(ili9341_config.pin_dc, GPIO_OUT);
     gpio_put(ili9341_config.pin_dc, 0);
 
-
     sleep_ms(50);
     gpio_put(ili9341_config.pin_reset, 0);
     sleep_ms(50);
@@ -373,7 +354,6 @@ void ili9341_init() {
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
     gpio_put(LED_PIN, 0);
-
 
     // no bus initialization ?
 

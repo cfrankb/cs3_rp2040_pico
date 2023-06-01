@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
-#include "src/ili9341.h"
+#include "ili9341.h"
 
 #define SWAP_BYTES(color) ((uint16_t)(color >> 8) | (uint16_t)(color << 8))
 
@@ -91,7 +91,7 @@ void setupPins() {
     gpio_put(LED_PIN, true);
 }
 
-int main() {
+extern "C" int main() {
     stdio_init_all();
  //   setupPins();
     printf("Hello, world!\n");

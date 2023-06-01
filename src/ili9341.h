@@ -93,9 +93,9 @@ extern const uint8_t font6x8[];
 void ili9341_init();
 void ili9341_set_command(uint8_t cmd);
 void ili9341_command_param(uint8_t data);
-void ili9341_write_data(void *buffer, int bytes);
+void ili9341_write_data(const uint8_t *buffer, size_t bytes);
 void ili9341_start_writing();
 void ili9341_stop_writing();
-void ili9341_write_data_continuous(void *biffer, int bytes);
+void ili9341_write_data_continuous(const uint8_t *buffer, int bytes);
 void ili9341_lcdDrawFillRect(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color);
 #endif
