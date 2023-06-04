@@ -103,16 +103,18 @@ extern "C" int main() {
     while (true) {
         //fillBuffer(palette[i]);
         //ili9341_write_data(frameBuffer, width * height * 2);
-        ili9341_lcdDrawFillRect(0,0, 128, 128,palette[i] );
+        //ili9341_lcdDrawFillRect(0,0, 128, 128,palette[i] );
         uint16_t *tiles = &tiles_mcz;
         int j =0;
-        for (int y=0; y < 12; ++y) {
-            for (int x=0; x < 15; ++x) {
-                ili9341_lcdDrawTile(x*16, 128+y*16, tiles + 256 * j);
+        int cols = 240 / 16;
+        int rows = 320 / 16;
+
+        for (int y=0; y < rows; ++y) {
+            for (int x=0; x < cols; ++x) {
+                ili9341_lcdDrawTile(x*16, y*16, tiles + 256 * j);
                 ++j;
             }
         }
-
 
         ++i;
         if (i > 15) {
