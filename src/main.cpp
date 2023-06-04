@@ -55,15 +55,15 @@ int main1() {
 }
 
 #define width  240
-#define height  320
+#define height 320
 #define bufferSize  width * height
-static uint16_t frameBuffer[bufferSize];
+/*static uint16_t frameBuffer[bufferSize];
 
 void fillBuffer(const uint16_t color) {
     for (int i=0; i < bufferSize; ++i) {
         frameBuffer[i] = color;
     }
-}
+}*/
 
 const uint16_t palette[16] = {
     SWAP_BYTES(0x0000),
@@ -91,16 +91,29 @@ void setupPins() {
     gpio_put(LED_PIN, true);
 }
 
+extern uint16_t tiles_mcz;
+
 extern "C" int main() {
     stdio_init_all();
  //   setupPins();
     printf("Hello, world!\n");
     ili9341_init();
+    ili9341_lcdDrawFillRect(0,0, width, height, 0);
     int i = 0;
     while (true) {
         //fillBuffer(palette[i]);
         //ili9341_write_data(frameBuffer, width * height * 2);
         ili9341_lcdDrawFillRect(0,0, 128, 128,palette[i] );
+        uint16_t *tiles = &tiles_mcz;
+        int j =0;
+        for (int y=0; y < 12; ++y) {
+            for (int x=0; x < 15; ++x) {
+                ili9341_lcdDrawTile(x*16, 128+y*16, tiles + 256 * j);
+                ++j;
+            }
+        }
+
+
         ++i;
         if (i > 15) {
             i = 0;

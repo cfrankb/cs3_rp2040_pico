@@ -15,17 +15,6 @@
  (pin 7) SCK        SPI bus clock signal
  (pin 8) LED        Backlight control; if not controlled, connect 3.3V always bright
  (pin 9) SDO(MISO)  SPI bus read data signal; optional
- 
-
- #define MISO 16
-#define CS   17
-#define SCLK 18
-#define MOSI 19
-
-#define TFT_MISO  16
-#define TFT_CS    17  // Chip select control pin
-#define TFT_SCLK  18
-#define TFT_MOSI  19
 
  */
 
@@ -39,8 +28,9 @@ ili9341_config_t ili9341_config = {
 	.pin_dc = 9         //spi1 csn
 };
 
-
 const uint LED_PIN = 1;
+#define DC_CMD 0
+#define DC_DATA 1
 
 static inline void cs_select() {
     asm volatile("nop \n nop \n nop");
@@ -56,9 +46,9 @@ static inline void cs_deselect() {
 
 void ili9341_set_command(uint8_t cmd) {
     cs_select();
-    gpio_put(ili9341_config.pin_dc, 0);
+    gpio_put(ili9341_config.pin_dc, DC_CMD);
     spi_write_blocking(ili9341_config.port, &cmd, 1);
-    gpio_put(ili9341_config.pin_dc, 1);
+    gpio_put(ili9341_config.pin_dc, DC_DATA);
     cs_deselect();
 }
 
@@ -92,14 +82,13 @@ static bool spi_master_write_comm_byte(uint8_t cmd)
     Byte = cmd;
     //gpio_set_level(dev->_dc, SPI_Command_Mode);
     cs_select();
-    gpio_put(ili9341_config.pin_dc, 0);
+    gpio_put(ili9341_config.pin_dc, DC_CMD);
     int s = spi_write_blocking(ili9341_config.port, &Byte, 1);
     cs_deselect();
     if (s != 1) {
         printf("spi_master_write_comm_byte return %d. expecting: 1", s);
     }
     return s == 1;
-    //return spi_master_write_byte(dev->_SPIHandle, &Byte, 1);
 }
 
 static bool spi_master_write_data_byte(uint8_t data)
@@ -107,16 +96,13 @@ static bool spi_master_write_data_byte(uint8_t data)
     static uint8_t Byte = 0;
     Byte = data;
     cs_select();
-    gpio_put(ili9341_config.pin_dc, 1);
-//    gpio_set_level(dev->_dc, SPI_Data_Mode);
+    gpio_put(ili9341_config.pin_dc, DC_DATA);
     int s  = spi_write_blocking(ili9341_config.port, &Byte, 1);
     cs_deselect();
     if (s != 1) {
         printf("spi_master_write_data_byte return %d. expecting: 1", s);
     }
     return s == 1;
-
-    //return spi_master_write_byte(dev->_SPIHandle, &Byte, 1);
 }
 
 bool spi_master_write_addr( uint16_t addr1, uint16_t addr2)
@@ -127,11 +113,10 @@ bool spi_master_write_addr( uint16_t addr1, uint16_t addr2)
     Byte[2] = (addr2 >> 8) & 0xFF;
     Byte[3] = addr2 & 0xFF;
     cs_select();
-    gpio_put(ili9341_config.pin_dc, 1);
+    gpio_put(ili9341_config.pin_dc, DC_DATA);
     int s  = spi_write_blocking(ili9341_config.port, Byte, 4);
     cs_deselect();
     return s;
-    //return spi_master_write_byte(dev->_SPIHandle, Byte, 4);
 }
 
 bool spi_master_write_color( uint16_t color, uint16_t size)
@@ -144,11 +129,25 @@ bool spi_master_write_color( uint16_t color, uint16_t size)
         Byte[index++] = color & 0xFF;
     }
     cs_select();
-    gpio_put(ili9341_config.pin_dc, 1);
+    gpio_put(ili9341_config.pin_dc, DC_DATA);
     int s  = spi_write_blocking(ili9341_config.port, Byte, 2 * size);
     cs_deselect();
     return s;
-//    return spi_master_write_byte(dev->_SPIHandle, Byte, size * 2);
+}
+
+
+bool spi_master_write_colors( uint16_t *colors, uint16_t size)
+{ 
+    cs_select();
+    gpio_put(ili9341_config.pin_dc, DC_DATA);
+    uint16_t tmp[256];
+    for (int i=0; i < 256; ++i) {
+        tmp[i] = swap_bytes(colors[i]);
+    }
+
+    int s  = spi_write_blocking(ili9341_config.port, reinterpret_cast<uint8_t*>(tmp), 2 * size);
+    cs_deselect();
+    return s;
 }
 
 
@@ -177,13 +176,46 @@ void ili9341_lcdDrawFillRect(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2,
     spi_master_write_comm_byte( 0x2B); // set Page(y) address
     spi_master_write_addr(y1, y2);
     spi_master_write_comm_byte( 0x2C); // Memory Write
-    for (int i = x1; i <= x2; i++)
+    for (int i = y1; i <= y2; i++)
     {
         uint16_t size = x2 - x1 + 1;
         spi_master_write_color(color, size);
     }
      // endif 0x9340/0x9341/0x7796
 }
+
+
+// Draw rectangle of filling
+// x1:Start X coordinate
+// y1:Start Y coordinate
+// tile: ptr to 16x16 tile
+void ili9341_lcdDrawTile(uint16_t x1, uint16_t y1, uint16_t *tile)
+{
+    const uint16_t width = 240;
+    const uint16_t height = 320;
+
+    uint16_t x2 = x1 + 16 - 1;
+    uint16_t y2 = y1 + 16 - 1;
+
+    if (x1 >= width)
+        return;
+
+    if (x2 >= width)
+        x2 = width - 1;
+    if (y1 >= height)
+        return;
+    if (y2 >= height)
+        y2 = height - 1;
+
+    spi_master_write_comm_byte( 0x2A); // set column(x) address
+    spi_master_write_addr(x1, x2);
+    spi_master_write_comm_byte( 0x2B); // set Page(y) address
+    spi_master_write_addr(y1, y2);
+    spi_master_write_comm_byte( 0x2C); // Memory Write
+    spi_master_write_colors(tile, 256);
+     // endif 0x9340/0x9341/0x7796
+}
+
 
 void ili9341_lcdInit() {
 
@@ -319,18 +351,21 @@ void ili9341_lcdInit0() {
 
 }
 
-void ili9341_init() {
+void ili9341_spi_init()
+{
     // This example will use SPI0 at 0.5MHz.
     spi_init(ili9341_config.port, 500 * 1000);
-    //spi_init(ili9341_config.port, 20 * 1000 * 1000);
     int baudrate = spi_set_baudrate(ili9341_config.port, 75000 * 1000);
-    //  printf("baudrate: %d\n", baudrate);
 
+    // init spi pins
     gpio_set_function(ili9341_config.pin_miso, GPIO_FUNC_SPI);
     gpio_set_function(ili9341_config.pin_sck, GPIO_FUNC_SPI);
     gpio_set_function(ili9341_config.pin_mosi, GPIO_FUNC_SPI);
+}
 
-    // Chip select is active-low, so we'll initialise it to a driven-high state
+void ili9341_init_gpio() 
+{
+   // Chip select is active-low, so we'll initialise it to a driven-high state
     gpio_init(ili9341_config.pin_cs);
     gpio_set_dir(ili9341_config.pin_cs, GPIO_OUT);
     gpio_put(ili9341_config.pin_cs, 0);
@@ -343,7 +378,7 @@ void ili9341_init() {
     // high = command, low = data
     gpio_init(ili9341_config.pin_dc);
     gpio_set_dir(ili9341_config.pin_dc, GPIO_OUT);
-    gpio_put(ili9341_config.pin_dc, 0);
+    gpio_put(ili9341_config.pin_dc, DC_CMD);
 
     sleep_ms(50);
     gpio_put(ili9341_config.pin_reset, 0);
@@ -353,15 +388,20 @@ void ili9341_init() {
 
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
-    gpio_put(LED_PIN, 0);
+    gpio_put(LED_PIN, 1);
+}
 
-    // no bus initialization ?
+void ili9341_init() {
+
+    // initialize the spi
+    ili9341_spi_init();
+
+    // initialize gpio pins
+    ili9341_init_gpio();
 
     // lcd Init
     ili9341_lcdInit();
     //ili9341_lcdInit0();
-
-    gpio_put(LED_PIN, 1);
 }
 
 uint16_t swap_bytes(uint16_t color) {

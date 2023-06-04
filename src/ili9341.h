@@ -97,5 +97,9 @@ void ili9341_write_data(const uint8_t *buffer, size_t bytes);
 void ili9341_start_writing();
 void ili9341_stop_writing();
 void ili9341_write_data_continuous(const uint8_t *buffer, int bytes);
+
 void ili9341_lcdDrawFillRect(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color);
+void ili9341_lcdDrawTile(uint16_t x1, uint16_t y1, uint16_t *tile);
+
+uint16_t swap_bytes(uint16_t color);
 #endif

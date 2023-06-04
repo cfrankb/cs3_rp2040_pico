@@ -2,7 +2,9 @@
 add_executable(${PROJECT_NAME}
     main.cpp
     ili9341.cpp
+    data.s
 )
+set_property(SOURCE data.s APPEND PROPERTY COMPILE_OPTIONS "-I" "${CMAKE_SOURCE_DIR}/data")
 
 # Add pico_stdlib library which aggregates commonly used features
 target_link_libraries(${PROJECT_NAME} 
@@ -10,7 +12,6 @@ target_link_libraries(${PROJECT_NAME}
     hardware_spi
     hardware_dma    
 )
-
 
 pico_enable_stdio_usb(${PROJECT_NAME} 1)
 pico_enable_stdio_uart(${PROJECT_NAME} 1)
