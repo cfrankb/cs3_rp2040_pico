@@ -3,6 +3,8 @@ add_executable(${PROJECT_NAME}
     main.cpp
     ili9341.cpp
     buffer.cpp
+    map.cpp
+    levelarch.cpp
     data.s
 )
 set_property(SOURCE data.s APPEND PROPERTY COMPILE_OPTIONS "-I" "${CMAKE_SOURCE_DIR}/data")
