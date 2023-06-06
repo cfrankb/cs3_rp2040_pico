@@ -1,5 +1,9 @@
 .global tiles_mcz
+.global annie_mczl
+.global animz_mcz
+.global bitfont_bin
 .type tiles_mcz STT_COMMON
+.type bitfont_bin STT_COMMON
 
 .section .rodata
 .balign 4

@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "pico/stdlib.h"
 #include "hardware/spi.h"
+#include "buffer.h"
 
 /*
 #define SPI_PORT spi0
@@ -63,8 +64,8 @@ extern ili9341_config_t ili9341_config;
 #define ILI9341_VSCRSADD 0x37 ///< Vertical Scrolling Start Address
 #define ILI9341_PIXFMT 0x3A   ///< COLMOD: Pixel Format Set
 
-#define ILI9341_FRMCTR1                                                        \
-  0xB1 ///< Frame Rate Control (In Normal Mode/Full Colors)
+#define ILI9341_FRMCTR1                                                   \
+0xB1 ///< Frame Rate Control (In Normal Mode/Full Colors)
 #define ILI9341_FRMCTR2 0xB2 ///< Frame Rate Control (In Idle Mode/8 colors)
 #define ILI9341_FRMCTR3                                                        \
   0xB3 ///< Frame Rate control (In Partial Mode/Full Colors)
@@ -88,8 +89,6 @@ extern ili9341_config_t ili9341_config;
 #define ILI9341_GMCTRN1 0xE1 ///< Negative Gamma Correction
 //#define ILI9341_PWCTR6     0xFC
 
-extern const uint8_t font6x8[];
-
 void ili9341_init();
 void ili9341_set_command(uint8_t cmd);
 void ili9341_command_param(uint8_t data);
@@ -100,6 +99,8 @@ void ili9341_write_data_continuous(const uint8_t *buffer, int bytes);
 
 void ili9341_lcdDrawFillRect(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color);
 void ili9341_lcdDrawTile(uint16_t x1, uint16_t y1, uint16_t *tile);
+bool ili9341_drawBuffer(uint16_t x1, uint16_t y1, CBuffer &buffer);
 
 uint16_t swap_bytes(uint16_t color);
+
 #endif

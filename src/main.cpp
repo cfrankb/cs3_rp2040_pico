@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "ili9341.h"
+#include "buffer.h"
 
 #define SWAP_BYTES(color) ((uint16_t)(color >> 8) | (uint16_t)(color << 8))
 
@@ -95,32 +96,46 @@ extern uint16_t tiles_mcz;
 
 extern "C" int main() {
     stdio_init_all();
- //   setupPins();
     printf("Hello, world!\n");
     ili9341_init();
     ili9341_lcdDrawFillRect(0,0, width, height, 0);
     int i = 0;
+    CBuffer buffer(240, 16);
     while (true) {
         //fillBuffer(palette[i]);
         //ili9341_write_data(frameBuffer, width * height * 2);
         //ili9341_lcdDrawFillRect(0,0, 128, 128,palette[i] );
         uint16_t *tiles = &tiles_mcz;
         int j =0;
-        int cols = 240 / 16;
-        int rows = 320 / 16;
+        int cols = width / 16;
+        int rows = height / 16;
 
         for (int y=0; y < rows; ++y) {
             for (int x=0; x < cols; ++x) {
-                ili9341_lcdDrawTile(x*16, y*16, tiles + 256 * j);
+                //ili9341_lcdDrawTile(x*16, y*16, tiles + 256 * j);
+                buffer.drawTile(x*16, 0,tiles + 256 * j );
                 ++j;
             }
+            char txt[32];
+            if (y == 0) {
+                sprintf(txt, "tiles 0x%p", tiles);
+                buffer.drawFont(0,4, txt, 0xffff);
+            } else if (y == 1) {
+                sprintf(txt, "buffer 0x%p", buffer.buffer());
+                buffer.drawFont(0,4, txt, 0xffff);
+            }
+            ili9341_drawBuffer(0,y*16, buffer);
         }
 
         ++i;
         if (i > 15) {
             i = 0;
         }
-        sleep_ms(250);
+
+//        buffer.drawFont(0,0, "hello world", 0xffff);
+  //      ili9341_drawBuffer(0,0, buffer);
+
+        sleep_ms(512);
         printf("i = %d\n", i);
     }
     return 0;

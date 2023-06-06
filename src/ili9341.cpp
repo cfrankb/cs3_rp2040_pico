@@ -3,6 +3,7 @@
 #include <string.h>
 #include "pico/stdlib.h"
 #include "ili9341.h"
+#include "buffer.h"
 
 /*
  
@@ -140,12 +141,12 @@ bool spi_master_write_colors( uint16_t *colors, uint16_t size)
 { 
     cs_select();
     gpio_put(ili9341_config.pin_dc, DC_DATA);
-    uint16_t tmp[256];
-    for (int i=0; i < 256; ++i) {
-        tmp[i] = swap_bytes(colors[i]);
-    }
+    //uint16_t tmp[256];
+//    for (int i=0; i < 256; ++i) {
+  //      tmp[i] = swap_bytes(colors[i]);
+   // }
 
-    int s  = spi_write_blocking(ili9341_config.port, reinterpret_cast<uint8_t*>(tmp), 2 * size);
+    int s  = spi_write_blocking(ili9341_config.port, reinterpret_cast<uint8_t*>(colors), 2 * size);
     cs_deselect();
     return s;
 }
@@ -389,6 +390,34 @@ void ili9341_init_gpio()
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
     gpio_put(LED_PIN, 1);
+}
+
+bool ili9341_drawBuffer(uint16_t x1, uint16_t y1, CBuffer &buffer)
+{
+    const uint16_t width = 240;
+    const uint16_t height = 320;
+
+    int len = buffer.len();
+    int hei = buffer.hei(); 
+    int size = len * hei;
+
+    --len;
+    if (x1 + len > width)
+        return false;
+    if (y1 + hei > height)
+        return false;
+
+    uint16_t x2 = x1 + len;
+    uint16_t y2 = y1 + hei;
+
+    spi_master_write_comm_byte( 0x2A); // set column(x) address
+    spi_master_write_addr(x1, x2);
+    spi_master_write_comm_byte( 0x2B); // set Page(y) address
+    spi_master_write_addr(y1, y2);
+    spi_master_write_comm_byte( 0x2C); // Memory Write
+    spi_master_write_colors(buffer.buffer(), size);
+
+    return true;
 }
 
 void ili9341_init() {
