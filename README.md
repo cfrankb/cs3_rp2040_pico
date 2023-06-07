@@ -1,6 +1,6 @@
 # About
 
-This project is a game port to RP2040 / Pico microcontroller of an MS-DOS Game.
+This project is a game port to the RP2040 / Raspberry Pico microcontroller of an MS-DOS Game.
 
 Current status is alpha. 90% of the core mechanic has been implemented.
 
@@ -8,9 +8,9 @@ Current status is alpha. 90% of the core mechanic has been implemented.
 
 ![Image](images/Screenshot_2022-10-19_21-01-20.png 'icon')
 
-## RP2040 / Pico
+## RP2040 / Raspberry Pico
 
-![Image](images/20230606_224428_crop50.jpg 'icon')
+![Image](images/20230606_231307_crop50.jpg 'icon')
 
 I am also releasing the source code for the map editor:
 https://github.com/cfrankb/cs3-map-edit
@@ -24,11 +24,11 @@ RP2040 SDK Pico
 This project is based in part on: https://github.com/nopnop2002/esp-idf-st7789
 
 ```Shell
-git clone https://github.com/cfrankb/esp-idf-cs3.git
-cd esp-idf-cs3/
-idf.py set-target {esp32/esp32s2/esp32s3/esp32c3}
-idf.py menuconfig
-idf.py flash
+git clone git@github.com:cfrankb/cs3_rp2040_pico.git
+mkdir build
+cd build
+cmake ..
+make
 ```
 
 # Tested with this hardware
@@ -38,7 +38,7 @@ idf.py flash
 | ST7789  | 240x320    | 20M          | True        |
 | ILI9341 | 240x320    | 40M          | False       |
 
-## ST7789
+## ILI9341
 
 https://www.aliexpress.com/item/1005004343881408.html
 
@@ -74,6 +74,4 @@ https://www.aliexpress.com/item/32345829014.html
 | OUT    | green     | 4         |
 | VCC    | red       | 3.3v / 5v |
 
-## Further reading
 
-https://github.com/DiegoPaezA/ESP32-freeRTOS
