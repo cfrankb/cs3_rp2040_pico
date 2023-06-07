@@ -7,30 +7,14 @@
 #include "buffer.h"
 #include "levelarch.h"
 #include "map.h"
+#include "game.h"
+#include "engine.h"
+#include "palette.h"
+#include "joystick.h"
 
-#define SWAP_BYTES(color) ((uint16_t)(color >> 8) | (uint16_t)(color << 8))
 #define width  240
 #define height 320
 #define bufferSize  width * height
-
-const uint16_t palette[16] = {
-    SWAP_BYTES(0x0000),
-    SWAP_BYTES(0x49E5),
-    SWAP_BYTES(0xB926),
-    SWAP_BYTES(0xE371),
-    SWAP_BYTES(0x9CF3),
-    SWAP_BYTES(0xA324),
-    SWAP_BYTES(0xEC46),
-    SWAP_BYTES(0xF70D),
-    SWAP_BYTES(0xffff),
-    SWAP_BYTES(0x1926),
-    SWAP_BYTES(0x2A49),
-    SWAP_BYTES(0x4443),
-    SWAP_BYTES(0xA664),
-    SWAP_BYTES(0x02B0),
-    SWAP_BYTES(0x351E),
-    SWAP_BYTES(0xB6FD)
-};
 
 extern uint16_t tiles_mcz;
 extern uint8_t levels_mapz;
@@ -48,7 +32,7 @@ uint storage_get_flash_capacity() {
     return 1 << rxbuf[3];
 }
 
-extern "C" int main() {
+extern "C" int main1() {
     stdio_init_all();
     printf("Hello, world!\n");
     ili9341_init();
@@ -81,10 +65,10 @@ extern "C" int main() {
                 buffer.drawFont(0,4, txt, 0xffff);
             } else if (y == 1) {
                 sprintf(txt, "buffer 0x%p", buffer.buffer());
-                buffer.drawFont(0,4, txt, palette[1]);
+                buffer.drawFont(0,4, txt, 0xffff);
             } else if (y==2) {
                 sprintf(txt, "0x%x", storage_get_flash_capacity());
-                buffer.drawFont(0,4, txt, palette[2]);
+                buffer.drawFont(0,4, txt, 0xffff);
             }
             ili9341_drawBuffer(0,y*16, buffer);
         }
@@ -93,5 +77,59 @@ extern "C" int main() {
   //      ili9341_drawBuffer(0,0, buffer);
         sleep_ms(512);
     }
+    return 0;
+}
+
+CGame game;
+
+extern "C" int main() {
+    stdio_init_all();
+    printf("Hello, world!\n");
+
+    CEngine * engine = game.getEngine();
+
+    game.init();
+    game.loadLevel();
+    game.nextLevel();
+
+    engine->fill(LIME);
+    game.setMode(CGame::MODE_LEVEL);
+    uint32_t ticks = 0;
+
+    while (1)
+    {
+//        vTaskDelay(40 / portTICK_PERIOD_MS);
+        engine->drawScreen();
+
+        if (game.mode() != CGame::MODE_LEVEL)
+        {
+            continue;
+        }
+
+        if (ticks % 3 == 0)
+        {
+            game.managePlayer();
+        }
+
+        if (ticks % 3 == 0)
+        {
+            //game.animate();
+            engine->animate();
+        }
+
+        if (ticks % 4 == 0)
+        {
+            game.manageMonsters();
+        }
+        ++ticks;
+       
+        uint16_t joy =engine->readJoystick();
+        if (game.goalCount() == 0 || joy & JOY_A_BUTTON)
+        {
+            game.nextLevel();
+        }
+        
+    }    
+
     return 0;
 }

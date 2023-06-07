@@ -5,6 +5,10 @@ add_executable(${PROJECT_NAME}
     buffer.cpp
     map.cpp
     levelarch.cpp
+    actor.cpp
+    game.cpp
+    tilesdata.cpp
+    engine.cpp
     data.s
 )
 set_property(SOURCE data.s APPEND PROPERTY COMPILE_OPTIONS "-I" "${CMAKE_SOURCE_DIR}/data")
@@ -13,7 +17,8 @@ set_property(SOURCE data.s APPEND PROPERTY COMPILE_OPTIONS "-I" "${CMAKE_SOURCE_
 target_link_libraries(${PROJECT_NAME} 
     pico_stdlib 
     hardware_spi
-    hardware_dma    
+    hardware_dma
+    hardware_adc
 )
 
 pico_enable_stdio_usb(${PROJECT_NAME} 1)

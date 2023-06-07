@@ -122,16 +122,15 @@ bool spi_master_write_addr( uint16_t addr1, uint16_t addr2)
 
 bool spi_master_write_color( uint16_t color, uint16_t size)
 {
-    static uint8_t Byte[1024];
+    uint16_t line[1024];
     int index = 0;
     for (int i = 0; i < size; i++)
     {
-        Byte[index++] = (color >> 8) & 0xFF;
-        Byte[index++] = color & 0xFF;
+        line[i] = color;
     }
     cs_select();
     gpio_put(ili9341_config.pin_dc, DC_DATA);
-    int s  = spi_write_blocking(ili9341_config.port, Byte, 2 * size);
+    int s  = spi_write_blocking(ili9341_config.port, reinterpret_cast<uint8_t*>(line), 2 * size);
     cs_deselect();
     return s;
 }

@@ -6,7 +6,22 @@ ili9341 example
 https://github.com/shawnhyam/pico
 https://github.com/imsamrth/pico_hmi
 
+
 https://www.youtube.com/watch?v=RtQqXMeYpqI
 https://educ8s.tv/raspberry-pi-pico-ili9341/
 
 https://forum.micropython.org/viewtopic.php?t=9891
+
+
+https://stackoverflow.com/questions/44284275/passing-compiler-options-in-cmake-command-line
+https://stackoverflow.com/questions/15132185/mixing-c-and-assembly-sources-and-build-with-cmake
+https://stackoverflow.com/questions/53773555/assembly-incbin-file-and-use-in-c-file-gcc-5-4-0
+https://os.mbed.com/cookbook/Assembly-Language
+
+https://www.digikey.ca/en/maker/projects/raspberry-pi-pico-and-rp2040-cc-part-1-blink-and-vs-code/7102fb8bca95452e9df6150f39ae8422
+https://www.youtube.com/watch?v=JSis2NU65w8
+
+
+https://www.makermatrix.com/blog/read-and-write-data-with-the-pi-pico-onboard-flash/
+
+
