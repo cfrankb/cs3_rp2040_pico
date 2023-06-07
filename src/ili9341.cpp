@@ -140,10 +140,6 @@ bool spi_master_write_colors( uint16_t *colors, uint16_t size)
 { 
     cs_select();
     gpio_put(ili9341_config.pin_dc, DC_DATA);
-    //uint16_t tmp[256];
-//    for (int i=0; i < 256; ++i) {
-  //      tmp[i] = swap_bytes(colors[i]);
-   // }
 
     int s  = spi_write_blocking(ili9341_config.port, reinterpret_cast<uint8_t*>(colors), 2 * size);
     cs_deselect();
@@ -430,9 +426,5 @@ void ili9341_init() {
     // lcd Init
     ili9341_lcdInit();
     //ili9341_lcdInit0();
-}
-
-uint16_t swap_bytes(uint16_t color) {
-    return (color>>8) | (color<<8);
 }
 

@@ -12,9 +12,6 @@ public:
     ~CEngine();
 
     bool init();
-
-    friend class CGame;
-
     void drawLevelIntro();
     void drawScreen();
     void drawBuffer(int x, int y);
@@ -29,6 +26,5 @@ protected:
     enum{
         NO_ANIMZ = 255,
     };
-
 };
 #endif

@@ -63,7 +63,7 @@ CEngine::~CEngine()
 bool CEngine::init()
 {
     ili9341_init();
-    fill(YELLOW);
+    fill(BLACK);
     initJoystick();
     return true;
 }
@@ -214,7 +214,5 @@ uint16_t CEngine::readJoystick()
     }
 
     //printf("x=%u y=%u joy=%x\n", adc_x_raw, adc_y_raw, joy);
-
-
     return joy;
 }

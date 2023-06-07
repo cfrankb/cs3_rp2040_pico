@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "actor.h"
 #include "map.h"
+#include "levelarch.h"
 
 class CEngine;
 
@@ -37,6 +38,7 @@ public:
     };
 
 protected:
+    int m_lives = 0;
     int m_health = 0;
     int m_level = 0;
     int m_score = 0;
@@ -67,5 +69,6 @@ protected:
 
     friend class CEngine;
     CEngine *m_engine;
+    CLevelArch m_arch;
 };
 #endif

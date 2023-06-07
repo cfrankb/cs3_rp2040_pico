@@ -3,8 +3,6 @@
 
 #include <cinttypes>
 #include <vector>
-typedef std::vector<long> IndexVector;
-
 class CLevelArch 
 {
 public:
@@ -19,7 +17,8 @@ public:
     void forget();
 
 protected:
-   IndexVector m_index;
+    typedef std::vector<long> IndexVector;
+    IndexVector m_index;
 
 };
 

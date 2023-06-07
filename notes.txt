@@ -24,4 +24,4 @@ https://www.youtube.com/watch?v=JSis2NU65w8
 
 https://www.makermatrix.com/blog/read-and-write-data-with-the-pi-pico-onboard-flash/
 
-
+https://vanhunteradams.com/Pico/Setup/SDKArchitecture.html

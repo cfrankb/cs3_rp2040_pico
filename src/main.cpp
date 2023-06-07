@@ -32,79 +32,38 @@ uint storage_get_flash_capacity() {
     return 1 << rxbuf[3];
 }
 
-extern "C" int main1() {
-    stdio_init_all();
-    printf("Hello, world!\n");
-    ili9341_init();
-    ili9341_lcdDrawFillRect(0,0, width, height, 0);
-    int i = 0;
-    CBuffer buffer(240, 16);
-    uint8_t *ptr = &levels_mapz;
-    CLevelArch arch;
-    arch.fromMemory(ptr);
-
-    CMap map;
-    map.fromMemory(ptr + arch.at(3));
-
-    while (true) {
-        //ili9341_write_data(frameBuffer, width * height * 2);
-        //ili9341_lcdDrawFillRect(0,0, 128, 128,palette[i] );
-        uint16_t *tiles = &tiles_mcz;
-        int cols = width / 16;
-        int rows = height / 16;
-
-        for (int y=0; y < rows; ++y) {
-            for (int x=0; x < cols; ++x) {
-                //ili9341_lcdDrawTile(x*16, y*16, tiles + 256 * j);
-                buffer.drawTile(x*16, 0,tiles + 256 * map.at(x,y));
-                //++j;
-            }
-            char txt[32];
-            if (y == 0) {
-                sprintf(txt, "tiles 0x%p", tiles);
-                buffer.drawFont(0,4, txt, 0xffff);
-            } else if (y == 1) {
-                sprintf(txt, "buffer 0x%p", buffer.buffer());
-                buffer.drawFont(0,4, txt, 0xffff);
-            } else if (y==2) {
-                sprintf(txt, "0x%x", storage_get_flash_capacity());
-                buffer.drawFont(0,4, txt, 0xffff);
-            }
-            ili9341_drawBuffer(0,y*16, buffer);
-        }
-
-//        buffer.drawFont(0,0, "hello world", 0xffff);
-  //      ili9341_drawBuffer(0,0, buffer);
-        sleep_ms(512);
-    }
-    return 0;
-}
-
-CGame game;
 
 extern "C" int main() {
     stdio_init_all();
     printf("Hello, world!\n");
 
+    CGame game;
     CEngine * engine = game.getEngine();
 
     game.init();
     game.loadLevel();
-    game.nextLevel();
 
-    engine->fill(LIME);
-    game.setMode(CGame::MODE_LEVEL);
+    //game.setMode(CGame::MODE_LEVEL);
     uint32_t ticks = 0;
 
     while (1)
     {
 //        vTaskDelay(40 / portTICK_PERIOD_MS);
-        engine->drawScreen();
-
-        if (game.mode() != CGame::MODE_LEVEL)
+        switch (game.mode())
         {
-            continue;
+        case CGame::MODE_INTRO:
+            engine->drawLevelIntro();
+            sleep_ms(2000);
+            game.setMode(CGame::MODE_LEVEL);
+            break;
+        case CGame::MODE_LEVEL:
+            engine->drawScreen();
         }
+
+  //      if (game.mode() != CGame::MODE_LEVEL)
+   //     {
+     //       continue;
+      //  }
 
         if (ticks % 3 == 0)
         {
@@ -113,7 +72,6 @@ extern "C" int main() {
 
         if (ticks % 3 == 0)
         {
-            //game.animate();
             engine->animate();
         }
 
@@ -128,8 +86,7 @@ extern "C" int main() {
         {
             game.nextLevel();
         }
-        
-    }    
+    }
 
     return 0;
 }

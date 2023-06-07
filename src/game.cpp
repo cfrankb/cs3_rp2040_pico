@@ -1,5 +1,4 @@
 #include <cstring>
-//#include <mutex>
 #include <string>
 #include <vector>
 #include "game.h"
@@ -11,30 +10,21 @@
 #include "tilesdata.h"
 #include "animzdata.h"
 #include "engine.h"
-#include "levelarch.h"
 #include "ili9341.h"
 #include "palette.h"
 
-//std::mutex g_mutex;
-#define TILESIZE 16
-
 extern uint8_t levels_mapz;
-
 CMap map(30, 30);
 uint8_t CGame::m_keys[6];
-CLevelArch arch;
 
 CGame::CGame()
 {
-   // CTileSet::toggleFlipColors(true);
     m_monsterMax = MAX_MONSTERS;
     m_monsters = new CActor[m_monsterMax];
     m_monsterCount = 0;
     m_health = 0;
     m_level = 0;
-
     m_engine = new CEngine(this);
-
 }
 
 CGame::~CGame()
@@ -110,22 +100,10 @@ void CGame::consume()
 
 bool CGame::init()
 {
-  // initSpiffs();
-  //  initJoystick();
-   // display.init();
-
-    //tiles.read("/spiffs/tiles.mcz");
-    //animzTiles.read("/spiffs/animz.mcz");
-    //playerTiles.read("/spiffs/annie.mcz");
-
-   // if (!font.read("/spiffs/font.bin"))
-   // {
-    //    printf("failed to read font\n");
-   // }
     m_engine->init();
     uint8_t *ptr = &levels_mapz;
-    arch.fromMemory(ptr);
-    arch.debug();    
+    // load levelArch index from memory
+    m_arch.fromMemory(ptr);
     return true;
 }
 
@@ -134,7 +112,6 @@ void CGame::nextLevel()
     printf("nextLevel\n");
     m_score += 500 + m_health;
     ++m_level;
-  //  ++m_levelCount;
     if (!loadLevel())
     {
         m_level = 0;
@@ -148,22 +125,10 @@ bool CGame::loadLevel()
 //    std::lock_guard<std::mutex> lk(g_mutex);
     setMode(MODE_INTRO);
 
-    char tmp[20];
-
-    m_engine->fill(RED);
-
+    // extract level from levelArch
     uint8_t *ptr = &levels_mapz;
-    int i = m_level % arch.count();
-
-    sprintf(tmp, "count:%d", arch.count());
-    m_engine->drawFont(0,4,tmp );
-
-    sprintf(tmp, "lv%d at:0x%x", i,  arch.at(i));
-    m_engine->drawFont(0,36,tmp );
-
-    map.fromMemory(ptr + arch.at(i));
-    m_engine->fill(BLUE);
-
+    int i = m_level % m_arch.count();
+    map.fromMemory(ptr + m_arch.at(i));
     printf("level loaded\n");
 
     Pos pos = map.findFirst(TILES_ANNIE2);

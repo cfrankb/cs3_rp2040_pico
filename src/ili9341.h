@@ -101,6 +101,4 @@ void ili9341_lcdDrawFillRect(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2,
 void ili9341_lcdDrawTile(uint16_t x1, uint16_t y1, uint16_t *tile);
 bool ili9341_drawBuffer(uint16_t x1, uint16_t y1, CBuffer &buffer);
 
-uint16_t swap_bytes(uint16_t color);
-
 #endif

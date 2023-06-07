@@ -1,8 +1,6 @@
 #ifndef JOYSTICK_H
 #define JOYSTICK_H
 
-#include <stdint.h>
-
 enum JoyDir
 {
     JOY_UP = 0x01,

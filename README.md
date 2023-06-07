@@ -19,28 +19,28 @@ https://github.com/cfrankb/cs3-map-edit
 
 RP2040 SDK Pico
 
-# Installation
-
-This project is based in part on: https://github.com/nopnop2002/esp-idf-st7789
+# Build and Installation
 
 ```Shell
 git clone git@github.com:cfrankb/cs3_rp2040_pico.git
-mkdir build
+cd cs3_rp2040_pico
+mkdir -p build
 cd build
 cmake ..
 make
 ```
+Copy the UF2 file to your Pico.
 
 # Tested with this hardware
 
-| Driver  | Resolution | Max SPI Freq | Display Inv |
+| Driver  | Resolution | Max SPI Freq | Tested |
 | ------- | ---------- | ------------ | ----------- |
-| ST7789  | 240x320    | 20M          | True        |
-| ILI9341 | 240x320    | 40M          | False       |
+| ST7789  | 240x320    | 20M          | Not tested      |
+| ILI9341 | 240x320    | 40M          | Works      |
 
 ## ILI9341
 
-https://www.aliexpress.com/item/1005004343881408.html
+https://www.aliexpress.com/item/33040270372.html
 
 | ST7789   | wirecolor | GPIO Pin   |
 | -------- | --------- | ---------- |
