@@ -50,9 +50,10 @@ extern "C" int main() {
         case CGame::MODE_GAMEOVER:
             engine->drawLevelIntro();
             sleep_ms(2000);
-            game.setMode(CGame::MODE_LEVEL);
             if (game.mode()== CGame::MODE_GAMEOVER) {
                 game.restartGane();
+            } else {
+                game.setMode(CGame::MODE_LEVEL);
             }
             break;
         case CGame::MODE_LEVEL:
@@ -79,10 +80,14 @@ extern "C" int main() {
             game.manageMonsters();
         }
 
-        if (game.isPlayerDead() && !game.isGameOver()) {
-            sleep_ms(500);
+        if (game.isPlayerDead()){
             game.killPlayer();
-            game.restartLevel();
+            sleep_ms(500);
+            if(!game.isGameOver()) {
+                game.restartLevel();
+            } else {
+                game.setMode(CGame::MODE_GAMEOVER);
+            }
         }
 
         ++ticks;

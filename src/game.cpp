@@ -24,7 +24,7 @@ CGame::CGame()
     m_monsterCount = 0;
     m_health = 0;
     m_level = 0;
-    m_lives = 5;
+    m_lives = DEFAULT_LIVES;
     m_score = 0;
     m_engine = new CEngine(this);
 }
@@ -112,7 +112,7 @@ bool CGame::init()
 void CGame::nextLevel()
 {
     printf("nextLevel\n");
-    m_score += 500 + m_health;
+    m_score += LEVEL_BONUS + m_health;
     ++m_level;
     if (!loadLevel(false))
     {
@@ -426,6 +426,6 @@ void CGame::restartGane()
 {
     m_level = 0;
     m_score =0;
-    m_lives = 5;
+    m_lives = DEFAULT_LIVES;
     loadLevel(false);
 }

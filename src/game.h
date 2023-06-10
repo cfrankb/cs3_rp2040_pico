@@ -41,7 +41,9 @@ public:
         MODE_INTRO = 0,
         MODE_LEVEL = 1,
         MODE_RESTART = 2,
-        MODE_GAMEOVER =3
+        MODE_GAMEOVER =3,
+        DEFAULT_LIVES = 5,
+        LEVEL_BONUS = 500
     };
 
 protected:
