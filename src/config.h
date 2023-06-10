@@ -21,4 +21,9 @@ typedef struct {
     uint pin_sw;
 } joystick_module_config_t;
 
+typedef struct {
+    uint width;
+    uint height;
+} display_config_t;
+
 #endif

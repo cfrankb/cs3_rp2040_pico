@@ -12,14 +12,13 @@
 #include "config.h"
 
 #define TILESIZE 16
-#define CONFIG_WIDTH 240
-#define CONFIG_HEIGHT 320
 
 extern uint16_t tiles_mcz;
 extern uint16_t animz_mcz;
 extern uint16_t annie_mcz;
 extern uint8_t levels_mapz;
-extern joystick_module_config_t joystick_module_config;
+extern const joystick_module_config_t joystick_module_config;
+extern const display_config_t display_config;
 
 typedef struct
 {
@@ -50,7 +49,7 @@ AnimzSeq animzSeq[] = {
 };
 
 uint8_t tileReplacement[256];
-CBuffer buffer(CONFIG_WIDTH, TILESIZE);
+CBuffer buffer(display_config.width, TILESIZE);
 
 CEngine::CEngine(CGame *game)
 {
@@ -72,7 +71,7 @@ bool CEngine::init()
 
 void CEngine::fill(uint16_t color) 
 {
-    ili9341_lcdDrawFillRect(0,0, CONFIG_WIDTH, CONFIG_HEIGHT, color);
+    ili9341_lcdDrawFillRect(0,0, display_config.width, display_config.height, color);
 }
 
 void CEngine::drawBuffer(int x, int y)
@@ -94,8 +93,8 @@ void CEngine::drawLevelIntro()
     case CGame::MODE_GAMEOVER:
         strcpy(t, "GAME OVER");
     };
-    int x = (CONFIG_WIDTH - strlen(t) * 8) / 2;
-    int y = (CONFIG_HEIGHT - 8) / 2;
+    int x = (display_config.width - strlen(t) * 8) / 2;
+    int y = (display_config.height - 8) / 2;
 //    display.fill(BLACK);
     fill(BLACK);
     buffer.fill(BLACK);
@@ -111,8 +110,8 @@ void CEngine::drawScreen()
     CGame & game = *m_game;
     CMap & map = game.getMap();
 
-    const int cols = CONFIG_WIDTH / TILESIZE;
-    const int rows = CONFIG_HEIGHT / TILESIZE;
+    const int cols = display_config.width / TILESIZE;
+    const int rows = display_config.height / TILESIZE;
     const int lmx = std::max(0, game.m_player.getX() - cols / 2);
     const int lmy = std::max(0, game.m_player.getY() - rows / 2);
     const int mx = std::min(lmx, map.len() > cols ? map.len() - cols : 0);
@@ -168,7 +167,7 @@ void CEngine::drawScreen()
         else if (y == rows - 1)
         {
             buffer.drawRect(
-                Rect{.x = 4, .y = 4, .width = std::min(game.m_health / 2, CONFIG_WIDTH - 4), .height = 8}, LIME);
+                Rect{.x = 4, .y = 4, .width = std::min(game.m_health / 2, static_cast<int>(display_config.width) - 4), .height = 8}, LIME);
         }
         //display.drawBuffer(0, y * TILESIZE, buffer);
         ili9341_drawBuffer(0, y * TILESIZE, buffer);

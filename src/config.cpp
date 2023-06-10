@@ -1,5 +1,10 @@
 #include "config.h"
 
+display_config_t display_config = {
+    .width = 240,
+    .height = 320
+};
+
 ili9341_config_t ili9341_config = {
 	.port = spi0,
 	.pin_miso = 4,

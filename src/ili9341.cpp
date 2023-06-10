@@ -20,7 +20,8 @@
 
  */
 
-extern ili9341_config_t ili9341_config;
+extern const ili9341_config_t ili9341_config;
+extern const display_config_t display_config;
 
 #define DC_CMD 0
 #define DC_DATA 1
@@ -147,8 +148,8 @@ bool spi_master_write_colors( uint16_t *colors, uint16_t size)
 // color:color
 void ili9341_lcdDrawFillRect(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color)
 {
-    const uint16_t width = 240;
-    const uint16_t height = 320;
+    const uint16_t width = display_config.width;
+    const uint16_t height = display_config.height;
 
     if (x1 >= width)
         return;
@@ -179,8 +180,8 @@ void ili9341_lcdDrawFillRect(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2,
 // tile: ptr to 16x16 tile
 void ili9341_lcdDrawTile(uint16_t x1, uint16_t y1, uint16_t *tile)
 {
-    const uint16_t width = 240;
-    const uint16_t height = 320;
+    const uint16_t width = display_config.width;
+    const uint16_t height = display_config.height;
 
     uint16_t x2 = x1 + 16 - 1;
     uint16_t y2 = y1 + 16 - 1;
@@ -205,8 +206,8 @@ void ili9341_lcdDrawTile(uint16_t x1, uint16_t y1, uint16_t *tile)
 }
 
 
-void ili9341_lcdInit() {
-
+void ili9341_lcdInit()
+{
     spi_master_write_comm_byte(0xC0); // Power Control 1
     spi_master_write_data_byte(0x23);
 
@@ -384,8 +385,8 @@ void ili9341_init_gpio()
 
 bool ili9341_drawBuffer(uint16_t x1, uint16_t y1, CBuffer &buffer)
 {
-    const uint16_t width = 240;
-    const uint16_t height = 320;
+    const uint16_t width = display_config.width;
+    const uint16_t height = display_config.height;
 
     int len = buffer.len();
     int hei = buffer.hei(); 

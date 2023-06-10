@@ -12,10 +12,6 @@
 #include "palette.h"
 #include "joystick.h"
 
-#define width  240
-#define height 320
-#define bufferSize  width * height
-
 extern uint16_t tiles_mcz;
 extern uint8_t levels_mapz;
 
