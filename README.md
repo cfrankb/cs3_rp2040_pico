@@ -66,7 +66,14 @@ https://www.aliexpress.com/item/32345829014.html
 | GRN      | black     | GRN      |
 | VCC      | red       | 3.3v     |
 
+
+## Dupont cables
+
+https://www.aliexpress.com/item/1005004611997111.html
+
 ## Button Module (optional)
+
+https://www.aliexpress.com/item/32909058328.html
 
 | Module | wirecolor | GPIO Pin  |
 | ------ | --------- | --------- |
