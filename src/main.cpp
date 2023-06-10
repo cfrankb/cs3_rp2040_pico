@@ -41,20 +41,23 @@ extern "C" int main() {
     CEngine * engine = game.getEngine();
 
     game.init();
-    game.loadLevel();
+    game.loadLevel(false);
 
-    //game.setMode(CGame::MODE_LEVEL);
     uint32_t ticks = 0;
 
     while (1)
     {
-//        vTaskDelay(40 / portTICK_PERIOD_MS);
         switch (game.mode())
         {
         case CGame::MODE_INTRO:
+        case CGame::MODE_RESTART:
+        case CGame::MODE_GAMEOVER:
             engine->drawLevelIntro();
             sleep_ms(2000);
             game.setMode(CGame::MODE_LEVEL);
+            if (game.mode()== CGame::MODE_GAMEOVER) {
+                game.restartGane();
+            }
             break;
         case CGame::MODE_LEVEL:
             engine->drawScreen();
@@ -65,7 +68,7 @@ extern "C" int main() {
      //       continue;
       //  }
 
-        if (ticks % 3 == 0)
+        if (ticks % 3 == 0 && !game.isPlayerDead())
         {
             game.managePlayer();
         }
@@ -79,12 +82,24 @@ extern "C" int main() {
         {
             game.manageMonsters();
         }
+
+        if (game.isPlayerDead() && !game.isGameOver()) {
+            sleep_ms(500);
+            game.killPlayer();
+            game.restartLevel();
+        }
+
         ++ticks;
        
         uint16_t joy =engine->readJoystick();
-        if (game.goalCount() == 0 || joy & JOY_A_BUTTON)
-        {
-            game.nextLevel();
+        if (!game.isGameOver()) {
+            if (game.goalCount() == 0 || joy & JOY_A_BUTTON)
+            {
+                game.nextLevel();
+            }
+        } else {
+            if (joy & JOY_BUTTON) {
+            }
         }
     }
 

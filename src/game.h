@@ -14,7 +14,7 @@ public:
     ~CGame();
 
     bool init();
-    bool loadLevel();
+    bool loadLevel(bool restart);
     bool move(int dir);
     void manageMonsters();
     void managePlayer();
@@ -26,15 +26,22 @@ public:
 
     static CMap &getMap();
     void nextLevel();
+    void restartLevel();
+    void restartGane();
     void setMode(int mode);
     int mode() const;
+    bool isPlayerDead();
+    void killPlayer();
+    bool isGameOver();
 
     CEngine* getEngine();
 
     enum
     {
         MODE_INTRO = 0,
-        MODE_LEVEL = 1
+        MODE_LEVEL = 1,
+        MODE_RESTART = 2,
+        MODE_GAMEOVER =3
     };
 
 protected:
@@ -44,9 +51,13 @@ protected:
     int m_score = 0;
     int m_diamonds = 0;
     static uint8_t m_keys[6];
-
+    int m_mode;
+    CActor *m_monsters;
+    int m_monsterCount;
+    int m_monsterMax;
     CActor m_player;
-    void clearAttr(uint8_t attr);
+    CEngine *m_engine;
+    CLevelArch m_arch;
 
     // monsters
     enum
@@ -57,18 +68,12 @@ protected:
         DEFAULT_HEALTH = 64,
     };
 
-    int m_mode;
-
-    CActor *m_monsters;
-    int m_monsterCount;
-    int m_monsterMax;
+    void clearAttr(uint8_t attr);
     bool findMonsters();
     int addMonster(const CActor actor);
     int findMonsterAt(int x, int y);
     void addHealth(int hp);
 
     friend class CEngine;
-    CEngine *m_engine;
-    CLevelArch m_arch;
 };
 #endif

@@ -24,6 +24,8 @@ CGame::CGame()
     m_monsterCount = 0;
     m_health = 0;
     m_level = 0;
+    m_lives = 5;
+    m_score = 0;
     m_engine = new CEngine(this);
 }
 
@@ -112,18 +114,23 @@ void CGame::nextLevel()
     printf("nextLevel\n");
     m_score += 500 + m_health;
     ++m_level;
-    if (!loadLevel())
+    if (!loadLevel(false))
     {
         m_level = 0;
-        loadLevel();
+        loadLevel(false);
     }
 }
 
-bool CGame::loadLevel()
+void CGame::restartLevel()
+{
+    loadLevel(true);
+}
+
+bool CGame::loadLevel(bool restart)
 {
     printf("loading level: %d ...\n", m_level + 1);
 //    std::lock_guard<std::mutex> lk(g_mutex);
-    setMode(MODE_INTRO);
+    setMode(restart ? MODE_RESTART :MODE_INTRO);
 
     // extract level from levelArch
     uint8_t *ptr = &levels_mapz;
@@ -141,7 +148,6 @@ bool CGame::loadLevel()
 
     return true;
 }
-
 
 bool CGame::findMonsters()
 {
@@ -399,4 +405,27 @@ int CGame::mode() const
 CEngine* CGame::getEngine()
 {
     return m_engine;
+}
+
+bool CGame::isPlayerDead()
+{
+    return m_health == 0;
+}
+
+void CGame::killPlayer()
+{
+    m_lives = m_lives ? m_lives -1 : 0;
+}
+
+bool CGame::isGameOver()
+{
+    return m_lives == 0;
+}
+
+void CGame::restartGane()
+{
+    m_level = 0;
+    m_score =0;
+    m_lives = 5;
+    loadLevel(false);
 }

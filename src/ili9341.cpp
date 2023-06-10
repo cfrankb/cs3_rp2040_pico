@@ -4,6 +4,7 @@
 #include "pico/stdlib.h"
 #include "ili9341.h"
 #include "buffer.h"
+#include "config.h"
 
 /*
  
@@ -19,17 +20,8 @@
 
  */
 
-ili9341_config_t ili9341_config = {
-	.port = spi0,
-	.pin_miso = 4,
-	.pin_cs = 5,        //spi0 csn
-	.pin_sck = 6,       //spi0 sck
-	.pin_mosi = 7,      //spi0 tx
-	.pin_reset = 8,     //spi1 rx
-	.pin_dc = 9         //spi1 csn
-};
+extern ili9341_config_t ili9341_config;
 
-const uint LED_PIN = 1;
 #define DC_CMD 0
 #define DC_DATA 1
 
@@ -382,9 +374,12 @@ void ili9341_init_gpio()
     gpio_put(ili9341_config.pin_reset, 1);
     sleep_ms(50);
 
-    gpio_init(LED_PIN);
-    gpio_set_dir(LED_PIN, GPIO_OUT);
-    gpio_put(LED_PIN, 1);
+    // LED/BL backlight
+    if (ili9341_config.pin_led != -1) {
+        gpio_init(ili9341_config.pin_led);
+        gpio_set_dir(ili9341_config.pin_led, GPIO_OUT);
+        gpio_put(ili9341_config.pin_led, 1);
+    }
 }
 
 bool ili9341_drawBuffer(uint16_t x1, uint16_t y1, CBuffer &buffer)
@@ -427,4 +422,3 @@ void ili9341_init() {
     ili9341_lcdInit();
     //ili9341_lcdInit0();
 }
-

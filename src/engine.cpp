@@ -9,6 +9,7 @@
 #include "palette.h"
 #include "hardware/adc.h"
 #include "joystick.h"
+#include "config.h"
 
 #define TILESIZE 16
 #define CONFIG_WIDTH 240
@@ -18,6 +19,7 @@ extern uint16_t tiles_mcz;
 extern uint16_t animz_mcz;
 extern uint16_t annie_mcz;
 extern uint8_t levels_mapz;
+extern joystick_module_config_t joystick_module_config;
 
 typedef struct
 {
@@ -81,8 +83,17 @@ void CEngine::drawBuffer(int x, int y)
 void CEngine::drawLevelIntro()
 {
     char t[32];
-    sprintf(t, "LEVEL %.2d", m_game->m_level + 1);
-
+    switch (m_game->mode())
+    {
+    case CGame::MODE_INTRO:
+        sprintf(t, "LEVEL %.2d", m_game->m_level + 1);
+    break;
+    case CGame::MODE_RESTART:
+        sprintf(t, "LIVES LEFT %.2d", m_game->m_lives);
+    break;
+    case CGame::MODE_GAMEOVER:
+        strcpy(t, "GAME OVER");
+    };
     int x = (CONFIG_WIDTH - strlen(t) * 8) / 2;
     int y = (CONFIG_HEIGHT - 8) / 2;
 //    display.fill(BLACK);
@@ -91,6 +102,7 @@ void CEngine::drawLevelIntro()
     buffer.drawFont(x, 0, t, WHITE);
     drawBuffer(0, y);
 }
+
 
 void CEngine::drawScreen()
 {
@@ -111,6 +123,7 @@ void CEngine::drawScreen()
     uint16_t *playerTiles = &annie_mcz;
 
     uint16_t *tiledata;
+    char tmp[32];
     for (int y = 0; y < rows; ++y)
     {
         if (y + my >= map.hei())
@@ -137,15 +150,17 @@ void CEngine::drawScreen()
             buffer.drawTile(x * TILESIZE, 0, tiledata);
         }
 
-        char tmp[32];
         if (y == 0)
         {
             int bx = 0;
-            sprintf(tmp, "SCORE %.8d ", game.m_score);
-            buffer.drawFont(0, 0, tmp, WHITE);
+            sprintf(tmp, "%.8d ", game.m_score);
+            buffer.drawFont(0, 2, tmp, WHITE);
             bx += strlen(tmp);
-            sprintf(tmp, "DIAMONDS %.2d", game.m_diamonds);
-            buffer.drawFont(bx * 8, 0, tmp, YELLOW);
+            sprintf(tmp, "DIAMONDS %.2d ", game.m_diamonds);
+            buffer.drawFont(bx * 8, 2, tmp, YELLOW);
+            bx += strlen(tmp);
+            sprintf(tmp, "LIVES %.2d ", game.m_lives);
+            buffer.drawFont(bx * 8, 2, tmp, PURPLE);
         }
         else if (y ==1) {
             uint16_t joy = readJoystick();
@@ -181,8 +196,10 @@ void CEngine::drawFont(int x, int y, const char *text)
 void CEngine::initJoystick()
 {
     adc_init();
-    adc_gpio_init(26);
-    adc_gpio_init(27);
+    adc_gpio_init(joystick_module_config.pin_vrx);
+    adc_gpio_init(joystick_module_config.pin_vry);
+    adc_gpio_init(joystick_module_config.pin_sw); // button
+    gpio_set_dir(joystick_module_config.pin_sw, GPIO_IN);
 }
 
 uint16_t CEngine::readJoystick()
@@ -194,7 +211,6 @@ uint16_t CEngine::readJoystick()
     printf("x=%u y=%u\n", adc_x_raw, adc_y_raw);
 
     uint16_t joy = JOY_NONE;
-
     if (adc_y_raw < 50)
     {
         joy |= JOY_UP;
@@ -203,7 +219,6 @@ uint16_t CEngine::readJoystick()
     {
         joy |= JOY_DOWN;
     }
-
     if (adc_x_raw < 50)
     {
         joy |= JOY_LEFT;
@@ -212,7 +227,8 @@ uint16_t CEngine::readJoystick()
     {
         joy |= JOY_RIGHT;
     }
-
-    //printf("x=%u y=%u joy=%x\n", adc_x_raw, adc_y_raw, joy);
+    if (gpio_get(joystick_module_config.pin_sw)) {
+        joy |= JOY_BUTTON;
+    }
     return joy;
 }

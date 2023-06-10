@@ -9,6 +9,7 @@ add_executable(${PROJECT_NAME}
     game.cpp
     tilesdata.cpp
     engine.cpp
+    config.cpp
     data.s
 )
 set_property(SOURCE data.s APPEND PROPERTY COMPILE_OPTIONS "-I" "${CMAKE_SOURCE_DIR}/data")
